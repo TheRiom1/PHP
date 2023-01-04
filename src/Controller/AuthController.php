@@ -17,9 +17,66 @@ class AuthController extends Controller
         parent::__construct();
         $this->checkIsUserLogged();
     }
+    
+    public function login(array $post) 
+    {
+        if ($this->request->postParam('submit')) {
+            $validated = $this->validLoginData();
+
+            if (!$validated['email']) {
+                Session::put('error', 'Podaj adres email');
+            } elseif (!$validated['password']){
+                Session::put('error', 'Podaj hasło');
+            } else {
+                try {
+                    $db = Database::getInstance()->getConnection();
+                    //param binding
+                    $query = $db->prepare('
+                    SELECT * FROM users WHERE email= :email');
+                    $query->execute([
+                        'email' => $validated['email'],
+                        
+                    ]);
+                    $data = $query->fetchAll();
+                
+
+                } catch (Throwable) {
+                    Session::put('error', 'Błąd podczas tworzenia użytkownika. Spróbuj ponownie');
+
+                if ($data->rowCount() == 1) {
+                    // convert the record into assoc array
+                    $user_record = $data = $query->fetchAll(PDO::FETCH_ASSOC);
+                    $db_password = $data['password'];
+                    // compare form password with database password
+                    if (password_verify($validated['password'], $db_password)) {
+                        // set session for access control
+                        Session::put('user-id', $user_record['id']);
+                       
+                        
+                    } else {
+                        Session::put('error', 'Dane nie są poprawne');
+                    }
+                } else {
+                    Session::put('error', 'Nie znaleziono takiego użytkownika');
+                }
+            }
+                // if any problem, redirect back to signin page with login data
+                if (isset($_SESSION['signin'])) {
+                    $_SESSION['signin-data'] = $_POST;
+                    $this->view->render('register');
+                    die();
+                } else {
+                    $this->view->render('login');
+                    die();
+                }
+            }
+        }
+        
+
+    }
 
 
-    public function login(array $post)
+    public function register(array $post)
     {
         if ($this->request->postParam('submit')) {
             $validated = $this->validLoginData();
@@ -128,7 +185,7 @@ class AuthController extends Controller
 
     }
 
-    public function validLoginData(): array
+    public function validRegisterData(): array
     {
         $data['firstName'] = filter_var($_POST['firstName'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $data['lastName'] = filter_var($_POST['lastName'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -137,6 +194,13 @@ class AuthController extends Controller
         $data['createPassword'] = filter_var($_POST['createPassword'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $data['confirmPassword'] = filter_var($_POST['confirmPassword'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $data['avatar'] = $_FILES['avatar'];
+
+        return $data ?? [];
+    }
+    public function validLoginData(): array
+    {
+        $data['email'] = filter_var($_POST['email'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $data['password'] = filter_var($_POST['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         return $data ?? [];
     }

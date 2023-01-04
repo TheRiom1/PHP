@@ -42,6 +42,7 @@ class App
             'ranking' => (new HomeController())->ranking(),
             'quiz' => (new QuizController)->quiz(),
             'login' => (new AuthController)->login($_POST),
+            'register' => (new AuthController)->register($_POST),
             'logout' => (new AuthController)->logout(),
             'user-profile' => (new UserController())->index(),
             default => $this->actionNotFound() //
