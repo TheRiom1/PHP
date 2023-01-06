@@ -1,7 +1,7 @@
 <section class="container-fluid">
     <div class="row form-container profile-background">
         <div class="col-12 col-md-6 offset-md-3 d-flex justify-content-center align-items-center">
-            <div class="card mt-3">
+            <div class="card my-3">
                 <h5 class="card-header"><?= $params['user']['username'] ?></h5>
                 <div class="card-body">
                     <?php if (isset($params['user']['avatar']) && strlen($params['user']['avatar']) > 0) : ?>

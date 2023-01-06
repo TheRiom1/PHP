@@ -31,9 +31,9 @@
                                     value="<?= $params['user']['username'] ?>"
                             />
                         </div>
-                        <div class="col-12 form-group mt-4 d-inline-flex">
-                            <button type="submit" class="btn button-color col-12 col-md-6 me-1">Zapisz dane</button>
-                            <a href="/user-profile" class="btn btn-secondary col-12 col-md-6">Anuluj</a>
+                        <div class="col-12 form-group mt-4">
+                            <button type="submit" class="btn button-color-green w-100 mb-3">Zapisz dane</button>
+                            <a href="/user-profile" class="btn btn-secondary w-100">Anuluj</a>
                         </div>
                     </form>
                 </div>
